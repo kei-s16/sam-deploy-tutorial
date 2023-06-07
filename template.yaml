@@ -10,6 +10,7 @@ Globals:
     Timeout: 3
 
 Resources:
+  # NOTE: 認証なしのAPIができるのでデモが終わったら消すこと！
   DynamoDBWriterFunction:
     Type: AWS::Serverless::Function
     DependsOn: TodosDynamoDBTable
@@ -44,6 +45,7 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       Policies:
+        # TODO: ポリシーが巨大なので、課題として別関数を作成するときに分割すること
         - PolicyName: dynamoDBAccess
           PolicyDocument:
             Version: '2012-10-17'
