@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-deploy-tutorial
+
+  Sample SAM Template for sam-deploy-tutorial
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  DynamoDBWriterFunction:
+    Type: AWS::Serverless::Function
+    DependsOn: TodosDynamoDBTable
+    Properties:
+      CodeUri: functions/dynamodb-writer/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Role: !GetAtt DynamoDBWriterFunctionRole.Arn
+      Environment:
+        Variables:
+          AWS_LAMBDA_REGION: "ap-northeast-1"
+          AWS_DYNAMODB_ENDPOINT: "http://dynamodb-local:8000" # NOTE: ローカル専用になっているので注意！
+          AWS_DYNAMODB_TABLE: "todos"
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+
+  DynamoDBWriterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-DynamoDBWriterFunctionRole'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: dynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:GetRecords
+                Resource:
+                  - !Sub arn:aws:dynamodb:*:${AWS::AccountId}:table/*/index/*
+                  - !Sub arn:aws:dynamodb:*:${AWS::AccountId}:table/*/stream/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:ConditionCheckItem
+                  - dynamodb:PutItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !Sub arn:aws:dynamodb:*:${AWS::AccountId}:table/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:ListTables
+                Resource:
+                  - "*"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  TodosDynamoDBTable: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      # NOTE: table-def.jsonに書いてあるものと同じ
+      AttributeDefinitions: 
+        - 
+          AttributeName: "uuid"
+          AttributeType: "S"
+        - 
+          AttributeName: "todos"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "uuid"
+          KeyType: "HASH"
+        - 
+          AttributeName: "todos"
+          KeyType: "RANGE"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: "todos"

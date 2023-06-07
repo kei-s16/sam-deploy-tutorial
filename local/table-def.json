@@ -1,0 +1,28 @@
+{
+	"TableName": "todos",
+	"KeySchema": [
+		{
+			"AttributeName": "uuid",
+			"KeyType": "HASH"
+		},
+		{
+			"AttributeName": "todo",
+			"KeyType": "RANGE"
+		}
+	],
+	"AttributeDefinitions": [
+		{
+			"AttributeName": "uuid",
+			"AttributeType": "S"
+		},
+		{
+			"AttributeName": "todo",
+			"AttributeType": "S"
+		}
+	],
+	"ProvisionedThroughput": {
+		"ReadCapacityUnits": 5,
+		"WriteCapacityUnits": 5
+	}
+}
+

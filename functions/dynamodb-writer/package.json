@@ -1,0 +1,21 @@
+{
+  "name": "dynamodb-writer",
+  "version": "1.0.0",
+  "description": "dynamodb lambda",
+  "main": "app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.347.1",
+    "aws-sdk": "^2.1392.0",
+    "axios": ">=0.21.1",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "test": "mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.1.0"
+  }
+}

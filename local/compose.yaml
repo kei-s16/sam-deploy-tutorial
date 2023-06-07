@@ -1,0 +1,37 @@
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", ".", "-optimizeDbBeforeStartup"]
+    volumes:
+      - type: volume
+        source: dynamo-storage
+        target: /home/dynamodblocal
+    networks:
+      - sam-network
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # 課題用
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    entrypoint: sh
+    command: -c "/opt/bin/minio server /export --address :9000 --console-address :9001"
+    networks:
+      - sam-network
+
+volumes:
+  dynamo-storage:
+    driver: local
+
+networks:
+  sam-network:
+    external: true
+
